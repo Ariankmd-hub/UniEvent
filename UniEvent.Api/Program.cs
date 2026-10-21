@@ -1,5 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.Design;
+using UniEvent.Domain.IRepository;
 using UniEvent.Persistence;
+using UniEvent.Persistence.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,7 +19,14 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 builder.Services.AddDbContext<UniEventDbContext>(options =>
     options.UseSqlServer(connectionString));
+#endregion
 
+
+# region AddScoped irepo and repo
+
+builder.Services.AddScoped<IEventRepository, EventRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IEventRegistrationRepository, EventRegistrationRepository>();
 # endregion
 
 var app = builder.Build();
