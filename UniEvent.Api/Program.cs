@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.Design;
+using UniEvent.Application.Services.Implement;
+using UniEvent.Application.Services.Interface;
 using UniEvent.Domain.IRepository;
 using UniEvent.Persistence;
 using UniEvent.Persistence.Repository;
@@ -28,6 +30,12 @@ builder.Services.AddScoped<IEventRepository, EventRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IEventRegistrationRepository, EventRegistrationRepository>();
 # endregion
+
+#region AddScoped Service
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IEventService, EventService>();
+builder.Services.AddScoped<IEventRegistrationService, EventRegistrationService>();
+#endregion
 
 var app = builder.Build();
 

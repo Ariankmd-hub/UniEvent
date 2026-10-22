@@ -34,9 +34,12 @@ namespace UniEvent.Persistence.Repository
             return eventRegistration;
         }
 
-        public async Task<bool> RemoveAsync(EventRegistration eventRegistration)
+        public async Task<bool> RemoveAsync(int id)
         {
-           _context.EventRegistrations.Remove(eventRegistration);
+            EventRegistration? eventRegistration =await _context.EventRegistrations.FindAsync(id);
+            if(eventRegistration == null) {return false;}
+            
+            _context.EventRegistrations.Remove(eventRegistration);
             int efectedRows = await _context.SaveChangesAsync();
             if (efectedRows > 0)
             { return true; }

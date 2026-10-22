@@ -10,7 +10,7 @@
 
         public int EventId { get; set; }
 
-        public DateTime RegistrationDate { get; set; }
+        public DateTime RegistrationDate { get; set; } 
 
         // Navigation Property 
         public Event Event { get; set; } = null!; 

@@ -8,7 +8,7 @@ namespace UniEvent.Domain.IRepository
 
         Task AddAsync(Event eventEntity);
 
-        Task<bool> RemoveAsync(Event eventEntity);
+        Task<bool> RemoveAsync(int id);
 
         Task<Event?> GetByIdAsync(int id);
 
