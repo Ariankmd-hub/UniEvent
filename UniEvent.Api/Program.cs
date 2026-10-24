@@ -1,12 +1,22 @@
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.Design;
 using UniEvent.Application.Services.Implement;
 using UniEvent.Application.Services.Interface;
+using UniEvent.Application.Validators;
 using UniEvent.Domain.IRepository;
 using UniEvent.Persistence;
 using UniEvent.Persistence.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddValidatorsFromAssemblyContaining<CreateEventDtoValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<CreateUserDtoValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<CreateEventRegistrationDtoValidator>();
+
+builder.Services.AddFluentValidationAutoValidation();
+
 
 // Add services to the container.
 
@@ -21,6 +31,8 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 builder.Services.AddDbContext<UniEventDbContext>(options =>
     options.UseSqlServer(connectionString));
+
+
 #endregion
 
 
@@ -41,6 +53,9 @@ builder.Services.AddScoped<IEventRegistrationService, EventRegistrationService>(
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 #endregion
+
+
+
 
 var app = builder.Build();
 

@@ -22,7 +22,8 @@ namespace UniEvent.Presentation.Controllers
 
         }
 
-        [HttpGet("{id}")]
+        
+        [HttpGet("{id}", Name = "GetEventById")]
         public async Task<IActionResult> GetByIdAsync(int id)
         {
             EventResponseDto? eventResponseDto = await _eventService.GetByIdAsync(id);
@@ -35,7 +36,12 @@ namespace UniEvent.Presentation.Controllers
         {
             EventResponseDto eventResponseDto = await _eventService.CreateAsync(createEventDto);
 
-            return CreatedAtAction(nameof(GetByIdAsync), new { id = eventResponseDto.Id }, eventResponseDto);
+           
+            return CreatedAtRoute(
+                                  "GetEventById",
+                                  new { id = eventResponseDto.Id },
+                                   eventResponseDto);
+
         }
 
         [HttpDelete("{id}")]
