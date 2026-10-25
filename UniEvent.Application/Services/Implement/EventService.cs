@@ -11,14 +11,27 @@ namespace UniEvent.Application.Services.Implement
     {
 
         private readonly IEventRepository _eventRepository;
-        public EventService(IEventRepository eventRepository) 
+        private readonly IEventRegistrationRepository _eventRegistrationRepository;
+        public EventService(IEventRepository eventRepository,
+            IEventRegistrationRepository eventRegistrationRepository) 
         {
             _eventRepository = eventRepository;
+            _eventRegistrationRepository = eventRegistrationRepository;
         }
 
 
         public async Task<EventResponseDto> CreateAsync(CreateEventDto createEventDto)
         {
+            #region Logic
+            if (createEventDto.EventTime < DateTime.UtcNow) 
+            {
+                throw new ArgumentException("Can't make event for past time ! ");
+            }
+            if (createEventDto.Capacity < 1) 
+            {
+                throw new ArgumentException("Capacity can't be lower than 1 ");
+            }
+            #endregion
             Event eventEntity = new Event
             {
                 Title = createEventDto.Title,
@@ -94,6 +107,19 @@ namespace UniEvent.Application.Services.Implement
 
         public async Task<bool> RemoveAsync(int id)
         {
+            #region Logic 
+
+            Event? eventItem = await _eventRepository.GetByIdAsync(id);
+            if (eventItem == null)
+            {
+                throw new KeyNotFoundException("Couldn't find the Id that you were loooking for");
+            }
+            int registeredCount =await _eventRegistrationRepository.GetCountByEventIdAsync(eventItem.Id);
+            if (registeredCount > 0)
+            { throw new InvalidOperationException
+                    ("Cannot delete event because there are active registrations for it!"); }
+            #endregion
+
             return await _eventRepository.RemoveAsync(id);
             
         }

@@ -34,25 +34,44 @@ namespace UniEvent.Presentation.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateAsync(CreateEventDto createEventDto)
         {
-            EventResponseDto eventResponseDto = await _eventService.CreateAsync(createEventDto);
+            try
+            {
+                EventResponseDto eventResponseDto = await _eventService.CreateAsync(createEventDto);
 
-           
-            return CreatedAtRoute(
-                                  "GetEventById",
-                                  new { id = eventResponseDto.Id },
-                                   eventResponseDto);
+
+                return CreatedAtRoute(
+                                      "GetEventById",
+                                      new { id = eventResponseDto.Id },
+                                       eventResponseDto);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }  
 
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> RemoveAsync(int id) 
         {
-            bool result = await _eventService.RemoveAsync(id);
-            if (!result)
+            try
             {
-                return NotFound("Event not found");
+                bool result = await _eventService.RemoveAsync(id);
+                if (!result)
+                {
+                    return NotFound("Event not found");
+                }
+                return NoContent();
             }
-            return NoContent();
+            catch(KeyNotFoundException ex) 
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch(InvalidOperationException ex) 
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+           
         }
         
     }
