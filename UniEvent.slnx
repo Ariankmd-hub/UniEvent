@@ -1,1 +1,14 @@
-<Solution />
+<Solution>
+  <Folder Name="/UniEvent.Application/">
+    <Project Path="UniEvent.Application/UniEvent.Application.csproj" />
+  </Folder>
+  <Folder Name="/UniEvent.Domain/">
+    <Project Path="UniEvent.Domain/UniEvent.Domain.csproj" />
+  </Folder>
+  <Folder Name="/UniEvent.Persistence/">
+    <Project Path="UniEvent.Persistence/UniEvent.Persistence.csproj" />
+  </Folder>
+  <Folder Name="/UniEvent.Presentation/">
+    <Project Path="UniEvent.Api/UniEvent.Presentation.csproj" />
+  </Folder>
+</Solution>
