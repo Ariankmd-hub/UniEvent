@@ -34,6 +34,18 @@ namespace UniEvent.Persistence.Repository
             return eventRegistration;
         }
 
+        public async Task<int> GetCountByEventIdAsync(int eventId)
+        {
+            return await _context.EventRegistrations.CountAsync(e => e.EventId == eventId);
+        }
+
+        public async Task<bool> IsAlreadyRegisteredAsync(int userId, int eventId)
+        {
+            
+            return await _context.EventRegistrations
+                   .AnyAsync(r => r.UserId == userId && r.EventId == eventId);
+        }
+
         public async Task<bool> RemoveAsync(int id)
         {
             EventRegistration? eventRegistration =await _context.EventRegistrations.FindAsync(id);

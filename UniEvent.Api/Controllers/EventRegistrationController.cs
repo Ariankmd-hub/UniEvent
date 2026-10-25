@@ -33,21 +33,50 @@ namespace UniEvent.Presentation.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateAsync(CreateEventRegistrationDto eventRegistrationDto) 
         {
-             EventRegistrationResponseDto eventRegistrationResponseDto =
-                await _eventRegistrationService.CreateAsync(eventRegistrationDto);
-            return CreatedAtAction(nameof(GetByIdAsync),
-                new {id = eventRegistrationResponseDto.Id } , eventRegistrationResponseDto);
-            
+            try
+            {
+                EventRegistrationResponseDto eventRegistrationResponseDto =
+                    await _eventRegistrationService.CreateAsync(eventRegistrationDto);
+
+                return CreatedAtAction(nameof(GetByIdAsync),
+                    new { id = eventRegistrationResponseDto.Id }, eventRegistrationResponseDto);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message }); // 404
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message }); // 400
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message }); // 400
+            }
         }
+            
+        
        
         [HttpDelete("{id}")]
 
         public async Task<IActionResult> RemoveAsync(int id) 
         {
-            bool result = await _eventRegistrationService.RemoveAsync(id);
-            if(!result) { return NotFound(); }
-            return NoContent();
-        }
+            try
+            {
+                bool result = await _eventRegistrationService.RemoveAsync(id);
+                if (!result) { return NotFound(); }
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex) 
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch(InvalidOperationException ex) 
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        
+            }
         
     }
 }

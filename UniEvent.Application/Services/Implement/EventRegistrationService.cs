@@ -9,14 +9,52 @@ namespace UniEvent.Application.Services.Implement
     public class EventRegistrationService : IEventRegistrationService
     {
         private readonly IEventRegistrationRepository _eventRegistrationRepository;
-        public EventRegistrationService(IEventRegistrationRepository eventRegistrationRepository)
+        private readonly IEventRepository _eventRepository;
+
+        private readonly IUserRepository _userRepository;
+        public EventRegistrationService(IEventRegistrationRepository eventRegistrationRepository,
+            IEventRepository eventRepository,
+            IUserRepository userRepository)
         {
             _eventRegistrationRepository = eventRegistrationRepository;
+            _eventRepository = eventRepository;
+            _userRepository = userRepository;
         }
 
         
         public async Task<EventRegistrationResponseDto> CreateAsync(CreateEventRegistrationDto createEventRegistrationDto)
         {
+            #region Logic
+            Event? eventItem = await _eventRepository.GetByIdAsync(createEventRegistrationDto.EventId);
+            if (eventItem == null) 
+            {
+                throw new KeyNotFoundException("weren't able to find event , with that Event Id");
+            }
+            if (eventItem.EventTime < DateTime.UtcNow) 
+            {
+                throw new ArgumentException("The time for Registring this event is passed !");
+            }
+           
+            User? userItem = await _userRepository.GetByIdAsync(createEventRegistrationDto.UserId);
+            if (userItem == null) 
+            {
+                throw new KeyNotFoundException("weren't able to find User , with that User Id");
+            }
+
+            bool IsAlreadyRegister = await _eventRegistrationRepository.IsAlreadyRegisteredAsync
+                                (createEventRegistrationDto.UserId, createEventRegistrationDto.EventId);
+            if (IsAlreadyRegister)
+            { throw new InvalidOperationException("User has already registered for this event!"); }
+
+            int registeredCount = await _eventRegistrationRepository.GetCountByEventIdAsync
+                (createEventRegistrationDto.EventId);
+            if (registeredCount >= eventItem.Capacity) 
+            {
+                throw new InvalidOperationException("This event is full! No more seats available.");
+            }
+
+            #endregion
+
             EventRegistration eventRegistration = new EventRegistration()
             {
                 UserId = createEventRegistrationDto.UserId,
@@ -71,6 +109,17 @@ namespace UniEvent.Application.Services.Implement
 
         public async Task<bool> RemoveAsync(int id)
         {
+            EventRegistration? eventRegistration = await _eventRegistrationRepository.GetByIdAsync(id);
+            if( eventRegistration == null) 
+            { throw new KeyNotFoundException("Couldn't find the the Registration!");  }
+            
+            Event? eventItem = await _eventRepository.GetByIdAsync(eventRegistration.EventId);
+            if(eventItem != null && eventItem.EventTime < DateTime.UtcNow) 
+            {
+                throw new InvalidOperationException("Cannot cancel registration for an event that has already occurred!");
+            }
+       
+
             return await _eventRegistrationRepository.RemoveAsync(id);
         }
     }
