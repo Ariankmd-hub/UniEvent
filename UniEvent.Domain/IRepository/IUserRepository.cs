@@ -11,5 +11,9 @@ namespace UniEvent.Domain.IRepository
         Task<bool> RemoveAsync(int id);
 
         Task<User?> GetByIdAsync(int id);
+        Task<bool> IsEmailExistsAsync(string email);
+        Task<bool> IsUniversityIdExistsAsync(string universityIdNumber);
+
+
     }
 }

@@ -15,5 +15,6 @@ namespace UniEvent.Domain.IRepository
        // Logic
         Task<bool> IsAlreadyRegisteredAsync(int userId, int eventId);
         Task<int> GetCountByEventIdAsync(int eventId);
+        Task<int> GetCountByUserIdAsync(int userId);
     }
 }

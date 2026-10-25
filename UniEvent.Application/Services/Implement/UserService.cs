@@ -8,14 +8,27 @@ namespace UniEvent.Application.Services.Implement
     public class UserService : IUserService
     {
         private readonly IUserRepository _repository;
-        public UserService(IUserRepository userRepository )
+        private readonly IEventRegistrationRepository _eventRegistrationRepository;
+        public UserService(IUserRepository userRepository,
+             IEventRegistrationRepository eventRegistrationRepository)
         {
             _repository = userRepository;
+            _eventRegistrationRepository = eventRegistrationRepository;
         }
 
 
         public async Task<UserResponseDto> CreateAsync(CreateUserDto createUserDto)
         {
+            #region Logic
+           bool emailExist = await _repository.IsEmailExistsAsync(createUserDto.EmailAddress);
+           if (emailExist) { throw new InvalidOperationException("Already have this email !"); }
+            bool universityIdExist = await _repository.IsUniversityIdExistsAsync(createUserDto.UniversityIdNumber);
+            if (universityIdExist) 
+            {
+                throw new InvalidOperationException("User with this university ID already exists !");
+            }
+           #endregion
+
             User user = new User()
             {
                 FirstName = createUserDto.FirstName,
@@ -76,6 +89,15 @@ namespace UniEvent.Application.Services.Implement
 
         public async Task<bool> RemoveAsync(int id)
         {
+            #region Logic
+            User? user = await _repository.GetByIdAsync(id);
+            if (user == null) { throw new KeyNotFoundException("Could;t find user with this Id"); }
+            int eventcount = await _eventRegistrationRepository.GetCountByUserIdAsync(user.Id);
+            if (eventcount > 0) 
+            {
+                throw new InvalidOperationException($"you are in {eventcount} events ,first you need to delete them ! ");
+            }
+            #endregion
             return await _repository.RemoveAsync(id);
            
         }

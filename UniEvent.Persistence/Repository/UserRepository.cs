@@ -22,6 +22,8 @@ namespace UniEvent.Persistence.Repository
             await _context.SaveChangesAsync();
         }
 
+        
+
         public async Task<List<User>> GetAllAsync()
         {
             List<User> allUsers = await _context.Users.AsNoTracking().ToListAsync();
@@ -34,6 +36,17 @@ namespace UniEvent.Persistence.Repository
             User? user = await _context.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
             return user;
 
+        }
+
+        public async Task<bool> IsEmailExistsAsync(string email)
+        {
+            // if there is = > true
+            return await _context.Users.AnyAsync(x=>x.EmailAddress == email);
+        }
+
+        public async Task<bool> IsUniversityIdExistsAsync(string universityIdNumber)
+        {
+            return await _context.Users.AnyAsync(x=>x.UniversityIdNumber == universityIdNumber);
         }
 
         public async Task<bool> RemoveAsync(int id)
