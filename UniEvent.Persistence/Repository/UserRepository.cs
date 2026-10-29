@@ -19,7 +19,7 @@ namespace UniEvent.Persistence.Repository
         public async Task AddAsync(User user, CancellationToken cancellationToken)
         {
             await _context.Users.AddAsync(user);
-            await _context.SaveChangesAsync(cancellationToken);
+            
         }
 
         
@@ -54,11 +54,9 @@ namespace UniEvent.Persistence.Repository
             User? user =await _context.Users.FindAsync(id);
             if (user == null) { return false; }
             _context.Users.Remove(user);
-            // if there was change = > it would be 1 or higher else it will be 0 
-            int efectedRows = await _context.SaveChangesAsync(cancellationToken);
-            if (efectedRows > 0) 
-            { return true; }
-            return false;
+           
+            return true; 
+           
 
         }
     }

@@ -18,7 +18,6 @@ namespace UniEvent.Persistence.Repository
         public async Task AddAsync(EventRegistration eventRegistration, CancellationToken cancellationToken)
         {
             await _context.EventRegistrations.AddAsync(eventRegistration);
-            await _context.SaveChangesAsync(cancellationToken);
         }
 
         public async Task<List<EventRegistration>> GetAllAsync(CancellationToken cancellationToken)
@@ -57,10 +56,7 @@ namespace UniEvent.Persistence.Repository
             if(eventRegistration == null) {return false;}
             
             _context.EventRegistrations.Remove(eventRegistration);
-            int efectedRows = await _context.SaveChangesAsync(cancellationToken);
-            if (efectedRows > 0)
-            { return true; }
-            return false;
+           return true;
         }
     }
 }

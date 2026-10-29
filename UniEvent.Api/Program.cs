@@ -41,6 +41,7 @@ builder.Services.AddDbContext<UniEventDbContext>(options =>
 builder.Services.AddScoped<IEventRepository, EventRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IEventRegistrationRepository, EventRegistrationRepository>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 # endregion
 
 #region AddScoped Service

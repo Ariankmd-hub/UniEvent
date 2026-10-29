@@ -7,22 +7,21 @@ namespace UniEvent.Application.Services.Implement
 {
     public class UserService : IUserService
     {
-        private readonly IUserRepository _repository;
-        private readonly IEventRegistrationRepository _eventRegistrationRepository;
-        public UserService(IUserRepository userRepository,
-             IEventRegistrationRepository eventRegistrationRepository)
+        private readonly IUnitOfWork _unitOfWork;
+        public UserService(IUnitOfWork unitOfWork)
         {
-            _repository = userRepository;
-            _eventRegistrationRepository = eventRegistrationRepository;
+            _unitOfWork = unitOfWork;
         }
 
 
         public async Task<UserResponseDto> CreateAsync(CreateUserDto createUserDto,CancellationToken cancellationToken)
         {
             #region Logic
-           bool emailExist = await _repository.IsEmailExistsAsync(createUserDto.EmailAddress,cancellationToken);
+           bool emailExist = await _unitOfWork.UserRepository.
+                IsEmailExistsAsync(createUserDto.EmailAddress,cancellationToken);
            if (emailExist) { throw new InvalidOperationException("Already have this email !"); }
-            bool universityIdExist = await _repository.IsUniversityIdExistsAsync(createUserDto.UniversityIdNumber,cancellationToken);
+            bool universityIdExist = await _unitOfWork.UserRepository.
+                IsUniversityIdExistsAsync(createUserDto.UniversityIdNumber,cancellationToken);
             if (universityIdExist) 
             {
                 throw new InvalidOperationException("User with this university ID already exists !");
@@ -38,7 +37,8 @@ namespace UniEvent.Application.Services.Implement
                 UniversityIdNumber = createUserDto.UniversityIdNumber
 
             };
-            await _repository.AddAsync(user,cancellationToken);
+            await _unitOfWork.UserRepository.AddAsync(user,cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
             return new UserResponseDto
             {
                 Id = user.Id,
@@ -53,7 +53,7 @@ namespace UniEvent.Application.Services.Implement
 
         public async Task<List<UserResponseDto>> GetAllAsync(CancellationToken cancellationToken)
         {
-            List<User> users = await _repository.GetAllAsync(cancellationToken);
+            List<User> users = await _unitOfWork.UserRepository.GetAllAsync(cancellationToken);
             List<UserResponseDto> responseList = new List<UserResponseDto>();
             foreach (User user in users) 
             {
@@ -73,7 +73,7 @@ namespace UniEvent.Application.Services.Implement
 
         public async Task<UserResponseDto?> GetByIdAsync(int id, CancellationToken cancellationToken)
         {
-            User? user =await _repository.GetByIdAsync(id, cancellationToken);
+            User? user =await _unitOfWork.UserRepository.GetByIdAsync(id, cancellationToken);
             if(user == null) {return null;}
             UserResponseDto responseDto = new UserResponseDto()
             {
@@ -90,15 +90,21 @@ namespace UniEvent.Application.Services.Implement
         public async Task<bool> RemoveAsync(int id, CancellationToken cancellationToken)
         {
             #region Logic
-            User? user = await _repository.GetByIdAsync(id, cancellationToken);
+            User? user = await _unitOfWork.UserRepository.GetByIdAsync(id, cancellationToken);
             if (user == null) { throw new KeyNotFoundException("Could;t find user with this Id"); }
-            int eventcount = await _eventRegistrationRepository.GetCountByUserIdAsync(user.Id,cancellationToken);
+            int eventcount = await _unitOfWork.EventRegistrationRepository.
+                GetCountByUserIdAsync(user.Id,cancellationToken);
             if (eventcount > 0) 
             {
                 throw new InvalidOperationException($"you are in {eventcount} events ,first you need to delete them ! ");
             }
             #endregion
-            return await _repository.RemoveAsync(id, cancellationToken);
+
+            bool result = await _unitOfWork.UserRepository.RemoveAsync(id, cancellationToken);
+            if (!result) { return  false; }
+            
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            return true;
            
         }
     }
