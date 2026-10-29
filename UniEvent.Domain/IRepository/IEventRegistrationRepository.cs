@@ -4,17 +4,17 @@ namespace UniEvent.Domain.IRepository
 {
     public interface IEventRegistrationRepository
     {
-        Task<List<EventRegistration>> GetAllAsync();
+        Task<List<EventRegistration>> GetAllAsync(CancellationToken cancellationToken);
 
-        Task AddAsync(EventRegistration eventRegistration);
+        Task AddAsync(EventRegistration eventRegistration, CancellationToken cancellationToken);
 
-        Task<bool> RemoveAsync(int id);
+        Task<bool> RemoveAsync(int id, CancellationToken cancellationToken);
 
-        Task<EventRegistration?> GetByIdAsync(int id); 
+        Task<EventRegistration?> GetByIdAsync(int id, CancellationToken cancellationToken); 
 
        // Logic
-        Task<bool> IsAlreadyRegisteredAsync(int userId, int eventId);
-        Task<int> GetCountByEventIdAsync(int eventId);
-        Task<int> GetCountByUserIdAsync(int userId);
+        Task<bool> IsAlreadyRegisteredAsync(int userId, int eventId, CancellationToken cancellationToken);
+        Task<int> GetCountByEventIdAsync(int eventId, CancellationToken cancellationToken);
+        Task<int> GetCountByUserIdAsync(int userId, CancellationToken cancellationToken);
     }
 }

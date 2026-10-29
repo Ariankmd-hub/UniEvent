@@ -22,10 +22,11 @@ namespace UniEvent.Application.Services.Implement
         }
 
         
-        public async Task<EventRegistrationResponseDto> CreateAsync(CreateEventRegistrationDto createEventRegistrationDto)
+        public async Task<EventRegistrationResponseDto> CreateAsync(
+            CreateEventRegistrationDto createEventRegistrationDto, CancellationToken cancellationToken)
         {
             #region Logic
-            Event? eventItem = await _eventRepository.GetByIdAsync(createEventRegistrationDto.EventId);
+            Event? eventItem = await _eventRepository.GetByIdAsync(createEventRegistrationDto.EventId,cancellationToken);
             if (eventItem == null) 
             {
                 throw new KeyNotFoundException("weren't able to find event , with that Event Id");
@@ -35,19 +36,19 @@ namespace UniEvent.Application.Services.Implement
                 throw new ArgumentException("The time for Registring this event is passed !");
             }
            
-            User? userItem = await _userRepository.GetByIdAsync(createEventRegistrationDto.UserId);
+            User? userItem = await _userRepository.GetByIdAsync(createEventRegistrationDto.UserId,cancellationToken);
             if (userItem == null) 
             {
                 throw new KeyNotFoundException("weren't able to find User , with that User Id");
             }
 
             bool IsAlreadyRegister = await _eventRegistrationRepository.IsAlreadyRegisteredAsync
-                                (createEventRegistrationDto.UserId, createEventRegistrationDto.EventId);
+                                (createEventRegistrationDto.UserId, createEventRegistrationDto.EventId,cancellationToken);
             if (IsAlreadyRegister)
             { throw new InvalidOperationException("User has already registered for this event!"); }
 
             int registeredCount = await _eventRegistrationRepository.GetCountByEventIdAsync
-                (createEventRegistrationDto.EventId);
+                (createEventRegistrationDto.EventId, cancellationToken);
             if (registeredCount >= eventItem.Capacity) 
             {
                 throw new InvalidOperationException("This event is full! No more seats available.");
@@ -62,7 +63,7 @@ namespace UniEvent.Application.Services.Implement
                 RegistrationDate = DateTime.UtcNow
 
             };
-            await _eventRegistrationRepository.AddAsync(eventRegistration);
+            await _eventRegistrationRepository.AddAsync(eventRegistration,cancellationToken);
             return new EventRegistrationResponseDto
             {
                 UserId = eventRegistration.UserId,
@@ -72,9 +73,9 @@ namespace UniEvent.Application.Services.Implement
             };
         }
 
-        public async Task<List<EventRegistrationResponseDto>> GetAllAsync()
+        public async Task<List<EventRegistrationResponseDto>> GetAllAsync(CancellationToken cancellationToken)
         {
-            List<EventRegistration> eventRegistrations = await _eventRegistrationRepository.GetAllAsync();
+            List<EventRegistration> eventRegistrations = await _eventRegistrationRepository.GetAllAsync(cancellationToken);
             List<EventRegistrationResponseDto> responseList = new List<EventRegistrationResponseDto>();
 
             foreach (EventRegistration eventRegistration in eventRegistrations) 
@@ -93,9 +94,9 @@ namespace UniEvent.Application.Services.Implement
         }
 
 
-        public async Task<EventRegistrationResponseDto?> GetByIdAsync(int id)
+        public async Task<EventRegistrationResponseDto?> GetByIdAsync(int id,CancellationToken cancellationToken)
         {
-            EventRegistration? eventRegistration = await _eventRegistrationRepository.GetByIdAsync(id);
+            EventRegistration? eventRegistration = await _eventRegistrationRepository.GetByIdAsync(id, cancellationToken);
             if(eventRegistration == null) { return null; }
             return new EventRegistrationResponseDto
             {
@@ -107,20 +108,20 @@ namespace UniEvent.Application.Services.Implement
         
         }
 
-        public async Task<bool> RemoveAsync(int id)
+        public async Task<bool> RemoveAsync(int id, CancellationToken cancellationToken)
         {
-            EventRegistration? eventRegistration = await _eventRegistrationRepository.GetByIdAsync(id);
+            EventRegistration? eventRegistration = await _eventRegistrationRepository.GetByIdAsync(id, cancellationToken);
             if( eventRegistration == null) 
             { throw new KeyNotFoundException("Couldn't find the the Registration!");  }
             
-            Event? eventItem = await _eventRepository.GetByIdAsync(eventRegistration.EventId);
+            Event? eventItem = await _eventRepository.GetByIdAsync(eventRegistration.EventId, cancellationToken);
             if(eventItem != null && eventItem.EventTime < DateTime.UtcNow) 
             {
                 throw new InvalidOperationException("Cannot cancel registration for an event that has already occurred!");
             }
        
 
-            return await _eventRegistrationRepository.RemoveAsync(id);
+            return await _eventRegistrationRepository.RemoveAsync(id,cancellationToken);
         }
     }
 }

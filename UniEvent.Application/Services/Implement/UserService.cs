@@ -17,12 +17,12 @@ namespace UniEvent.Application.Services.Implement
         }
 
 
-        public async Task<UserResponseDto> CreateAsync(CreateUserDto createUserDto)
+        public async Task<UserResponseDto> CreateAsync(CreateUserDto createUserDto,CancellationToken cancellationToken)
         {
             #region Logic
-           bool emailExist = await _repository.IsEmailExistsAsync(createUserDto.EmailAddress);
+           bool emailExist = await _repository.IsEmailExistsAsync(createUserDto.EmailAddress,cancellationToken);
            if (emailExist) { throw new InvalidOperationException("Already have this email !"); }
-            bool universityIdExist = await _repository.IsUniversityIdExistsAsync(createUserDto.UniversityIdNumber);
+            bool universityIdExist = await _repository.IsUniversityIdExistsAsync(createUserDto.UniversityIdNumber,cancellationToken);
             if (universityIdExist) 
             {
                 throw new InvalidOperationException("User with this university ID already exists !");
@@ -38,7 +38,7 @@ namespace UniEvent.Application.Services.Implement
                 UniversityIdNumber = createUserDto.UniversityIdNumber
 
             };
-            await _repository.AddAsync(user);
+            await _repository.AddAsync(user,cancellationToken);
             return new UserResponseDto
             {
                 Id = user.Id,
@@ -51,9 +51,9 @@ namespace UniEvent.Application.Services.Implement
            
         }
 
-        public async Task<List<UserResponseDto>> GetAllAsync()
+        public async Task<List<UserResponseDto>> GetAllAsync(CancellationToken cancellationToken)
         {
-            List<User> users = await _repository.GetAllAsync();
+            List<User> users = await _repository.GetAllAsync(cancellationToken);
             List<UserResponseDto> responseList = new List<UserResponseDto>();
             foreach (User user in users) 
             {
@@ -71,9 +71,9 @@ namespace UniEvent.Application.Services.Implement
             return responseList;
         }
 
-        public async Task<UserResponseDto?> GetByIdAsync(int id)
+        public async Task<UserResponseDto?> GetByIdAsync(int id, CancellationToken cancellationToken)
         {
-            User? user =await _repository.GetByIdAsync(id);
+            User? user =await _repository.GetByIdAsync(id, cancellationToken);
             if(user == null) {return null;}
             UserResponseDto responseDto = new UserResponseDto()
             {
@@ -87,18 +87,18 @@ namespace UniEvent.Application.Services.Implement
             return responseDto;
         }
 
-        public async Task<bool> RemoveAsync(int id)
+        public async Task<bool> RemoveAsync(int id, CancellationToken cancellationToken)
         {
             #region Logic
-            User? user = await _repository.GetByIdAsync(id);
+            User? user = await _repository.GetByIdAsync(id, cancellationToken);
             if (user == null) { throw new KeyNotFoundException("Could;t find user with this Id"); }
-            int eventcount = await _eventRegistrationRepository.GetCountByUserIdAsync(user.Id);
+            int eventcount = await _eventRegistrationRepository.GetCountByUserIdAsync(user.Id,cancellationToken);
             if (eventcount > 0) 
             {
                 throw new InvalidOperationException($"you are in {eventcount} events ,first you need to delete them ! ");
             }
             #endregion
-            return await _repository.RemoveAsync(id);
+            return await _repository.RemoveAsync(id, cancellationToken);
            
         }
     }

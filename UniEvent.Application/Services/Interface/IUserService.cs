@@ -4,9 +4,9 @@ namespace UniEvent.Application.Services.Interface
 {
     public interface IUserService
     {
-        Task<List<UserResponseDto>> GetAllAsync();
-        Task<UserResponseDto> CreateAsync(CreateUserDto createUserDto);
-        Task<bool> RemoveAsync(int id);
-        Task<UserResponseDto?> GetByIdAsync(int id);
+        Task<List<UserResponseDto>> GetAllAsync(CancellationToken cancellationToken);
+        Task<UserResponseDto> CreateAsync(CreateUserDto createUserDto, CancellationToken cancellationToken);
+        Task<bool> RemoveAsync(int id, CancellationToken cancellationToken);
+        Task<UserResponseDto?> GetByIdAsync(int id, CancellationToken cancellationToken);
     }
 }

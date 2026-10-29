@@ -15,28 +15,31 @@ namespace UniEvent.Presentation.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllAsync()
+        public async Task<IActionResult> GetAllAsync(CancellationToken cancellationToken
+)
         {
-            List<EventResponseDto> events = await _eventService.GetAllAsync();
+            List<EventResponseDto> events = await _eventService.GetAllAsync(cancellationToken);
             return Ok(events);
 
         }
 
         
         [HttpGet("{id}", Name = "GetEventById")]
-        public async Task<IActionResult> GetByIdAsync(int id)
+        public async Task<IActionResult> GetByIdAsync(int id, CancellationToken cancellationToken)
         {
-            EventResponseDto? eventResponseDto = await _eventService.GetByIdAsync(id);
+            EventResponseDto? eventResponseDto = await _eventService.GetByIdAsync(id,cancellationToken);
             if (eventResponseDto == null) { return NotFound(); }
             return Ok(eventResponseDto);
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateAsync(CreateEventDto createEventDto)
+        public async Task<IActionResult> CreateAsync(CreateEventDto createEventDto,
+            CancellationToken cancellationToken
+)
         {
             try
             {
-                EventResponseDto eventResponseDto = await _eventService.CreateAsync(createEventDto);
+                EventResponseDto eventResponseDto = await _eventService.CreateAsync(createEventDto,cancellationToken);
 
 
                 return CreatedAtRoute(
@@ -52,11 +55,12 @@ namespace UniEvent.Presentation.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> RemoveAsync(int id) 
+        public async Task<IActionResult> RemoveAsync(int id, CancellationToken cancellationToken
+)
         {
             try
             {
-                bool result = await _eventService.RemoveAsync(id);
+                bool result = await _eventService.RemoveAsync(id,cancellationToken);
                 if (!result)
                 {
                     return NotFound("Event not found");

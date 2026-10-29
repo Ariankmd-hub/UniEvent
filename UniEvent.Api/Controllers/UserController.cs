@@ -14,26 +14,27 @@ namespace UniEvent.Presentation.Controllers
             _userService = userService;
         }
         [HttpGet]
-        public async Task<IActionResult> GetAllAsync()
+        public async Task<IActionResult> GetAllAsync(CancellationToken cancellationToken
+)
         {
-            List<UserResponseDto> userResponseDtos = await _userService.GetAllAsync();
+            List<UserResponseDto> userResponseDtos = await _userService.GetAllAsync(cancellationToken);
             return Ok(userResponseDtos);
         }
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetByIdAsync(int id) 
+        public async Task<IActionResult> GetByIdAsync(int id, CancellationToken cancellationToken) 
         {
-            UserResponseDto? userResponseDto = await _userService.GetByIdAsync(id);
+            UserResponseDto? userResponseDto = await _userService.GetByIdAsync(id,cancellationToken);
             if (userResponseDto == null) { return NotFound(); }
             return Ok(userResponseDto);
         }
         
         
         [HttpPost]
-        public async Task<IActionResult> CreateAsync(CreateUserDto createUserDto)
+        public async Task<IActionResult> CreateAsync(CreateUserDto createUserDto, CancellationToken cancellationToken)
         {
             try
             {
-                UserResponseDto userResponseDto = await _userService.CreateAsync(createUserDto);
+                UserResponseDto userResponseDto = await _userService.CreateAsync(createUserDto,cancellationToken);
                 return CreatedAtAction(nameof(GetByIdAsync), new { id = userResponseDto.Id }, userResponseDto);
             }
             catch (InvalidOperationException ex) 
@@ -42,11 +43,12 @@ namespace UniEvent.Presentation.Controllers
 
         }
         [HttpDelete("{id}")]
-        public async Task<IActionResult> RemoveAsync(int id) 
+        public async Task<IActionResult> RemoveAsync(int id, CancellationToken cancellationToken
+)
         {
             try
             {
-                bool result = await _userService.RemoveAsync(id);
+                bool result = await _userService.RemoveAsync(id,cancellationToken);
                 if (!result) { return NotFound(); }
                 return NoContent();
             }

@@ -15,28 +15,30 @@ namespace UniEvent.Presentation.Controllers
             _eventRegistrationService = eventRegistrationService;
         }
         [HttpGet]
-        public async Task<IActionResult> GetAllAsync() 
+        public async Task<IActionResult> GetAllAsync(CancellationToken cancellationToken
+)
         {
            List<EventRegistrationResponseDto> eventRegistrationResponseDto = 
-                await _eventRegistrationService.GetAllAsync();
+                await _eventRegistrationService.GetAllAsync(cancellationToken);
             return Ok(eventRegistrationResponseDto);
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetByIdAsync(int id) 
+        public async Task<IActionResult> GetByIdAsync(int id, CancellationToken cancellationToken) 
         {
             EventRegistrationResponseDto? eventRegistrationResponseDto = 
-                await _eventRegistrationService.GetByIdAsync(id);
+                await _eventRegistrationService.GetByIdAsync(id, cancellationToken);
             if (eventRegistrationResponseDto == null) { return NotFound(); }
             return Ok(eventRegistrationResponseDto);
         }
         [HttpPost]
-        public async Task<IActionResult> CreateAsync(CreateEventRegistrationDto eventRegistrationDto) 
+        public async Task<IActionResult> CreateAsync(CreateEventRegistrationDto eventRegistrationDto, 
+            CancellationToken cancellationToken) 
         {
             try
             {
                 EventRegistrationResponseDto eventRegistrationResponseDto =
-                    await _eventRegistrationService.CreateAsync(eventRegistrationDto);
+                    await _eventRegistrationService.CreateAsync(eventRegistrationDto,cancellationToken);
 
                 return CreatedAtAction(nameof(GetByIdAsync),
                     new { id = eventRegistrationResponseDto.Id }, eventRegistrationResponseDto);
@@ -59,11 +61,11 @@ namespace UniEvent.Presentation.Controllers
        
         [HttpDelete("{id}")]
 
-        public async Task<IActionResult> RemoveAsync(int id) 
+        public async Task<IActionResult> RemoveAsync(int id, CancellationToken cancellationToken) 
         {
             try
             {
-                bool result = await _eventRegistrationService.RemoveAsync(id);
+                bool result = await _eventRegistrationService.RemoveAsync(id,cancellationToken);
                 if (!result) { return NotFound(); }
                 return NoContent();
             }

@@ -4,10 +4,10 @@ namespace UniEvent.Application.Services.Interface
 {
     public interface IEventService
     {
-        Task<List<EventResponseDto>> GetAllAsync();
+        Task<List<EventResponseDto>> GetAllAsync(CancellationToken cancellationToken);
 
-        Task<EventResponseDto?> GetByIdAsync(int id);
-        Task<EventResponseDto> CreateAsync(CreateEventDto createEventDto);
-        Task<bool> RemoveAsync(int id);
+        Task<EventResponseDto?> GetByIdAsync(int id, CancellationToken cancellationToken);
+        Task<EventResponseDto> CreateAsync(CreateEventDto createEventDto, CancellationToken cancellationToken);
+        Task<bool> RemoveAsync(int id, CancellationToken cancellationToken);
     }
 }

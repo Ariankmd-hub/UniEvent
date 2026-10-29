@@ -20,7 +20,8 @@ namespace UniEvent.Application.Services.Implement
         }
 
 
-        public async Task<EventResponseDto> CreateAsync(CreateEventDto createEventDto)
+        public async Task<EventResponseDto> CreateAsync(CreateEventDto createEventDto,
+            CancellationToken cancellationToken)
         {
             #region Logic
             if (createEventDto.EventTime < DateTime.UtcNow) 
@@ -41,7 +42,7 @@ namespace UniEvent.Application.Services.Implement
                 Location = createEventDto.Location
 
             };
-            await _eventRepository.AddAsync(eventEntity);
+            await _eventRepository.AddAsync(eventEntity,cancellationToken);
             return new EventResponseDto
             {
                 Id = eventEntity.Id,
@@ -53,10 +54,10 @@ namespace UniEvent.Application.Services.Implement
             };
         }
 
-        public async Task<List<EventResponseDto>> GetAllAsync()
+        public async Task<List<EventResponseDto>> GetAllAsync(CancellationToken cancellationToken)
         {
 
-            List<Event> events = await _eventRepository.GetAllAsync();
+            List<Event> events = await _eventRepository.GetAllAsync(cancellationToken);
             List<EventResponseDto> responseList = new List<EventResponseDto>();
             foreach (Event e in events) 
             {
@@ -84,9 +85,9 @@ namespace UniEvent.Application.Services.Implement
           //  }).ToList();
         }
 
-        public async Task<EventResponseDto?> GetByIdAsync(int id)
+        public async Task<EventResponseDto?> GetByIdAsync(int id, CancellationToken cancellationToken)
         {
-            Event? eventEntity = await _eventRepository.GetByIdAsync(id);
+            Event? eventEntity = await _eventRepository.GetByIdAsync(id, cancellationToken);
             if (eventEntity == null)
             {
                 return null;
@@ -105,22 +106,22 @@ namespace UniEvent.Application.Services.Implement
             
         }
 
-        public async Task<bool> RemoveAsync(int id)
+        public async Task<bool> RemoveAsync(int id,CancellationToken cancellationToken)
         {
             #region Logic 
 
-            Event? eventItem = await _eventRepository.GetByIdAsync(id);
+            Event? eventItem = await _eventRepository.GetByIdAsync(id, cancellationToken);
             if (eventItem == null)
             {
                 throw new KeyNotFoundException("Couldn't find the Id that you were loooking for");
             }
-            int registeredCount =await _eventRegistrationRepository.GetCountByEventIdAsync(eventItem.Id);
+            int registeredCount =await _eventRegistrationRepository.GetCountByEventIdAsync(eventItem.Id,cancellationToken);
             if (registeredCount > 0)
             { throw new InvalidOperationException
                     ("Cannot delete event because there are active registrations for it!"); }
             #endregion
 
-            return await _eventRepository.RemoveAsync(id);
+            return await _eventRepository.RemoveAsync(id, cancellationToken);
             
         }
     }

@@ -16,46 +16,46 @@ namespace UniEvent.Persistence.Repository
         #endregion
 
 
-        public async Task AddAsync(User user)
+        public async Task AddAsync(User user, CancellationToken cancellationToken)
         {
             await _context.Users.AddAsync(user);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
         }
 
         
 
-        public async Task<List<User>> GetAllAsync()
+        public async Task<List<User>> GetAllAsync(CancellationToken cancellationToken)
         {
-            List<User> allUsers = await _context.Users.AsNoTracking().ToListAsync();
+            List<User> allUsers = await _context.Users.AsNoTracking().ToListAsync(cancellationToken);
 
             return allUsers;
         }
 
-        public async Task<User?> GetByIdAsync(int id)
+        public async Task<User?> GetByIdAsync(int id, CancellationToken cancellationToken)
         {
-            User? user = await _context.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+            User? user = await _context.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id,cancellationToken);
             return user;
 
         }
 
-        public async Task<bool> IsEmailExistsAsync(string email)
+        public async Task<bool> IsEmailExistsAsync(string email, CancellationToken cancellationToken)
         {
             // if there is = > true
-            return await _context.Users.AnyAsync(x=>x.EmailAddress == email);
+            return await _context.Users.AnyAsync(x=>x.EmailAddress == email, cancellationToken);
         }
 
-        public async Task<bool> IsUniversityIdExistsAsync(string universityIdNumber)
+        public async Task<bool> IsUniversityIdExistsAsync(string universityIdNumber, CancellationToken cancellationToken)
         {
-            return await _context.Users.AnyAsync(x=>x.UniversityIdNumber == universityIdNumber);
+            return await _context.Users.AnyAsync(x=>x.UniversityIdNumber == universityIdNumber, cancellationToken);
         }
 
-        public async Task<bool> RemoveAsync(int id)
+        public async Task<bool> RemoveAsync(int id, CancellationToken cancellationToken)
         {
             User? user =await _context.Users.FindAsync(id);
             if (user == null) { return false; }
             _context.Users.Remove(user);
             // if there was change = > it would be 1 or higher else it will be 0 
-            int efectedRows = await _context.SaveChangesAsync();
+            int efectedRows = await _context.SaveChangesAsync(cancellationToken);
             if (efectedRows > 0) 
             { return true; }
             return false;
